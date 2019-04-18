@@ -1,0 +1,23 @@
+parameters:
+    hubspot_client_id: '%env(HUBSPOT_CLIENT_ID)%'
+    hubspot_client_secret: '%env(HUBSPOT_CLIENT_SECRET)%'
+
+services:
+    app.hubspot.hubspot_provider:
+        class: App\Hubspot\HubspotProvider
+        arguments:
+            - '%hubspot_client_id%'
+            - '%hubspot_client_secret%'
+        calls:
+            -   method: setLogger
+                arguments:
+                    - '@logger'
+        tags:
+            - { name: monolog.logger, channel: hubspot-api }
+
+
+    app.hubspot.hubspot_manager:
+        class: App\Hubspot\HubspotManager
+        public: true
+        arguments:
+            - '@app.hubspot.hubspot_provider'

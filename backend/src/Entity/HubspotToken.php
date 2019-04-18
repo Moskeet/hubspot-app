@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\HubspotTokenRepository")
  */
 class HubspotToken
 {
@@ -18,6 +18,15 @@ class HubspotToken
      * @ORM\Column(type="integer")
      */
     private $id;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=128)
+     *
+     * @Assert\NotBlank
+     */
+    private $redirectUri;
 
     /**
      * @var string|null
@@ -36,11 +45,45 @@ class HubspotToken
     private $token;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=128, nullable=true)
+     */
+    private $refreshToken;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $refreshDatetime;
+
+    /**
      * @return int
      */
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRedirectUri(): ?string
+    {
+        return $this->redirectUri;
+    }
+
+    /**
+     * @param string|null $value
+     *
+     * @return $this
+     */
+    public function setRedirectUri(?string $value): self
+    {
+        $this->redirectUri = $value;
+
+        return $this;
     }
 
     /**
@@ -79,6 +122,46 @@ class HubspotToken
     public function setToken(?string $value): self
     {
         $this->token = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * @param string|null $value
+     *
+     * @return $this
+     */
+    public function setRefreshToken(?string $value): self
+    {
+        $this->refreshToken = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getRefreshDatetime(): ?\DateTime
+    {
+        return $this->refreshDatetime;
+    }
+
+    /**
+     * @param \DateTime|null $value
+     *
+     * @return $this
+     */
+    public function setRefreshDatetime(?\DateTime $value): self
+    {
+        $this->refreshDatetime = $value;
 
         return $this;
     }

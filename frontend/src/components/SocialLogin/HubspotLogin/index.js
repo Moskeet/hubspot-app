@@ -1,41 +1,64 @@
-import React from 'react';
-import createReactClass from 'create-react-class';
+import React, { Component } from 'react';
 import Hubspot from './lib/oauth2/components/Hubspot/Hubspot';
+import { connect } from 'react-redux';
+import {tokenChangeCode, tokenChangeCodeToken} from '../../../actions/index';
+import axios from 'axios';
 
-let HubspotLogin = createReactClass({
-  getInitialState: function () {
-    return {
-      "data": {
-        "code": "",
-        "token": ""
-      }
-    };
-  },
+const mapStateToProps = ({ token }) => {
+  return {
+    data: {
+      code: token.code,
+      token: token.token,
+    },
+  }
+};
 
-  hubspot: function (err, res) {
+class HubspotLogin extends Component {
+  hubspot = (err, res) => {
+    const { dispatch } = this.props;
+
+
     if (!err) {
-      this.setState({ data: res.profile })
-    } else {
-      this.setState({ data: 'something happen wrong' })
-    }
-  },
+      let bodyFormData = new FormData();
 
-  render: function () {
+      bodyFormData.set('code', res.profile.code);
+      bodyFormData.set('redirectUri', process.env.REACT_APP_HUBSPOT_REDIRECT_URL);
+      axios
+        .post(
+          'token/exchange-code',
+          bodyFormData,
+          { headers: {'Content-Type': 'multipart/form-data' }})
+        .then(response => {
+          console.log(response);
+          dispatch(tokenChangeCodeToken({
+            code: response.code,
+            token: response.token,
+          }));
+        })
+      ;
+    }
+  };
+
+  render() {
+    const { data: {token} } = this.props;
+
     return <div>
-      <Hubspot
-        url={'http://localhost:3000'}
-        clientId={'f9dbc62c-ec62-435a-b787-172c505bd7b5'}
-        clientSecret={'3b0a4beb-0eb6-4f16-a879-c806996d29ec'}
-        redirectUri={'http://localhost:3000'}
-        scope={['contacts oauth']}
-        callback={this.hubspot}
-      >
-        Connect Hubspot
-      </Hubspot>
-      <hr />
-      {JSON.stringify(this.state)}
+      {token === null ?
+        <Hubspot
+          url={process.env.REACT_APP_HUBSPOT_REDIRECT_URL}
+          clientId={process.env.REACT_APP_HUBSPOT_CLIENT_ID}
+          clientSecret=""
+          redirectUri={process.env.REACT_APP_HUBSPOT_REDIRECT_URL}
+          scope={['contacts oauth']}
+          callback={this.hubspot}
+        >
+          Connect Hubspot
+        </Hubspot>
+        :
+        JSON.stringify(this.props)
+      }
     </div>
   }
-});
+}
 
-export default HubspotLogin;
+export default connect(mapStateToProps)(HubspotLogin);

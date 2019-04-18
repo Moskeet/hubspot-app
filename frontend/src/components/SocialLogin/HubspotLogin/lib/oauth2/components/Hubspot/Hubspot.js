@@ -9,11 +9,11 @@ import { Button } from 'muicss/react';
 let Hubspot = createReactClass({
   getDefaultProps: function () {
     return {
-      url: 'http://localhost:3000/',
+      url: process.env.REACT_APP_HUBSPOT_REDIRECT_URL,
       clientId: '',
       clientSecret: '',
-      redirectUri: 'http://localhost:3000/',
-      authorizationUrl: 'https://app.hubspot.com/oauth/authorize',
+      redirectUri: process.env.REACT_APP_HUBSPOT_REDIRECT_URL,
+      authorizationUrl: process.env.REACT_APP_HUBSPOT_AUTH_URL,
       scope: [''],
       width: 800,
       height: 600

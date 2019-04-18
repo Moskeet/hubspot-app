@@ -1,0 +1,7 @@
+services:
+    App\Command\TokenRefreshCommand:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@app.hubspot.hubspot_manager'
+        tags:
+            - { name: 'console.command', command: 'app:token:refresh' }
