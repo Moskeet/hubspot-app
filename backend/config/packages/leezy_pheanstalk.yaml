@@ -1,0 +1,6 @@
+leezy_pheanstalk:
+    pheanstalks:
+        primary:
+            server: 127.0.0.1
+            port: 11300
+            default: true

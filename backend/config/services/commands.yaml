@@ -5,3 +5,19 @@ services:
             - '@app.hubspot.hubspot_manager'
         tags:
             - { name: 'console.command', command: 'app:token:refresh' }
+
+    App\Command\BeanstalkQueueFetcherCommand:
+        arguments:
+            - '@leezy.pheanstalk.primary'
+            - '@doctrine.orm.default_entity_manager'
+            - '@app.hubspot.hubspot_manager'
+            - '%app.tube.hubspot-fetch%'
+        tags:
+            - { name: 'console.command', command: 'app:beanstalk:queue-hubspot-fetcher' }
+
+    App\Command\BeanstalkQueueFetcherEnqueueCommand:
+        arguments:
+            - '@leezy.pheanstalk.primary'
+            - '%app.tube.hubspot-fetch%'
+        tags:
+            - { name: 'console.command', command: 'app:beanstalk:queue-fetcher-enqueue' }

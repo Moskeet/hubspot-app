@@ -40,10 +40,31 @@ class HubspotManager
         return null;
     }
 
+    /**
+     * @param HubspotToken $hubspotToken
+     *
+     * @return bool
+     */
     public function refreshToken(HubspotToken $hubspotToken): bool
     {
         try {
             $this->hubspotProvider->refreshToken($hubspotToken);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param HubspotToken $hubspotToken
+     *
+     * @return bool
+     */
+    public function fetchContacts(HubspotToken $hubspotToken): bool
+    {
+        try {
+            $contacts = $this->hubspotProvider->fetchContacts($hubspotToken);
         } catch (\Exception $e) {
             return false;
         }

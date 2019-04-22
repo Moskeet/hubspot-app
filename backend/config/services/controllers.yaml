@@ -1,0 +1,8 @@
+services:
+    App\Controller\Api\TokenApiController:
+        arguments:
+            - '@app.hubspot.hubspot_manager'
+            - '@leezy.pheanstalk.primary'
+            - '@form.factory'
+            - '%app.tube.hubspot-fetch%'
+        public: true

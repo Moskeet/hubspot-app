@@ -4,7 +4,10 @@ namespace App\Controller\Api;
 
 use App\Entity\HubspotToken;
 use App\Form\Api\ExchangeCodeApiType;
+use App\Hubspot\HubspotManager;
+use Leezy\PheanstalkBundle\Proxy\PheanstalkProxy;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +19,44 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TokenApiController extends AbstractController
 {
+    /**
+     * @var HubspotManager
+     */
+    private $hubspotManager;
+
+    /**
+     * @var PheanstalkProxy
+     */
+    private $pheanstalk;
+
+    /**
+     * @var FormFactory
+     */
+    private $formFactory;
+
+    /**
+     * @var string
+     */
+    private $tubeName;
+
+    /**
+     * @param HubspotManager $hubspotManager
+     * @param PheanstalkProxy $pheanstalk
+     * @param FormFactory $formFactory
+     * @param string $tubeName
+     */
+    public function __construct(
+        HubspotManager $hubspotManager,
+        PheanstalkProxy $pheanstalk,
+        FormFactory $formFactory,
+        string $tubeName
+    ) {
+        $this->hubspotManager = $hubspotManager;
+        $this->pheanstalk = $pheanstalk;
+        $this->formFactory = $formFactory;
+        $this->tubeName = $tubeName;
+    }
+
     /**
      * @Route(
      *     "/get",
@@ -56,34 +97,42 @@ class TokenApiController extends AbstractController
         $form = $this->createNamelessForm(ExchangeCodeApiType::class);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $hubspotManager = $this->container->get('app.hubspot.hubspot_manager');
-            $hubspotToken = $hubspotManager->getTokenByCode($form->getData());
-
-            if ($hubspotToken !== null) {
-                $em = $this->getDoctrine()->getManager();
-                $token = $this->getLastToken();
-
-                if ($token) {
-                    $em->remove($token);
-                    $em->flush();
-                }
-
-                $em->persist($hubspotToken);
-                $em->flush();
-
-                return new JsonResponse([
-                    'code' => $hubspotToken->getCode(),
-                    'token' => $hubspotToken->getToken(),
-                ]);
-            }
+        if (!($form->isSubmitted() && $form->isValid())) {
+            return $this->errorResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Invalid form',
+                $form
+            );
         }
 
-        return $this->errorResponse(
-            Response::HTTP_BAD_REQUEST,
-            'Invalid form',
-            $form
-        );
+        $hubspotToken = $this->hubspotManager->getTokenByCode($form->getData());
+
+        if ($hubspotToken === null) {
+            return $this->errorResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Token was not retrieved.'
+            );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        if ($token = $this->getLastToken()) {
+            $em->remove($token);
+            $em->flush();
+        }
+
+        $em->persist($hubspotToken);
+        $em->flush();
+
+        $this->pheanstalk
+            ->useTube($this->tubeName)
+            ->put($hubspotToken->getId())
+        ;
+
+        return new JsonResponse([
+            'code' => $hubspotToken->getCode(),
+            'token' => $hubspotToken->getToken(),
+        ]);
     }
 
     /**
@@ -94,7 +143,7 @@ class TokenApiController extends AbstractController
      */
     private function createNamelessForm($type = null, $data = null, array $options = [])
     {
-        return $this->container->get('form.factory')->createNamed(null, $type, $data, $options);
+        return $this->formFactory->createNamed(null, $type, $data, $options);
     }
 
     /**

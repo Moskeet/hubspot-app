@@ -8,11 +8,12 @@
         "ext-json": "*",
         "doctrine/annotations": "^1.6",
         "guzzlehttp/guzzle": "^6.3",
+        "leezy/pheanstalk-bundle": "^3.4",
         "symfony/console": "4.2.*",
         "symfony/dotenv": "4.2.*",
         "symfony/flex": "^1.1",
         "symfony/form": "4.2.*",
-        "symfony/framework-bundle": "4.2.*",
+        "symfony/framework-bundle": "4.2.6",
         "symfony/monolog-bundle": "^3.3",
         "symfony/orm-pack": "^1.0",
         "symfony/validator": "4.2.*",
@@ -60,7 +61,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "4.2.*"
+            "require": "4.2.6"
         }
     },
     "require-dev": {

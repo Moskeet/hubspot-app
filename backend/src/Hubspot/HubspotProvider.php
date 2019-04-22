@@ -10,7 +10,7 @@ class HubspotProvider
 {
     use LoggerAwareTrait;
 
-    private const API_URL = 'https://api.hubapi.com/oauth/v1/';
+    private const API_URL = 'https://api.hubapi.com/';
 
     /**
      * @var string
@@ -41,7 +41,7 @@ class HubspotProvider
     {
         $response = $this->request(
             'POST',
-            'token',
+            'oauth/v1/token',
             [
                 'form_params' => [
                     'grant_type' => 'authorization_code',
@@ -75,7 +75,7 @@ class HubspotProvider
     {
         $response = $this->request(
             'POST',
-            'token',
+            'oauth/v1/token',
             [
                 'form_params' => [
                     'grant_type' => 'refresh_token',
@@ -102,6 +102,40 @@ class HubspotProvider
     }
 
     /**
+     * @param HubspotToken $hubspotToken
+     *
+     * @return array|null
+     */
+    public function fetchContacts(HubspotToken $hubspotToken): ?array
+    {
+        $parameters = [
+            'count' => 50,
+            'propertyMode' => 'value_only',
+            'formSubmissionMode' => 'oldest',
+        ];
+
+        if ($hubspotToken->getTimeOffset()) {
+            $parameters['timeOffset'] = $hubspotToken->getTimeOffset();
+        }
+
+        $response = $this->request(
+            'GET',
+            'contacts/v1/lists/all/contacts/recent?' . http_build_query($parameters),
+            [
+                'headers' => [
+                    'Authentication' => 'Bearer ' . $hubspotToken->getToken(),
+                ]
+            ]
+        );
+
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+
+        return json_decode((string)$response->getBody(), true);
+    }
+
+    /**
      * @param $method
      * @param string $uri
      * @param array $options
@@ -122,7 +156,7 @@ class HubspotProvider
 
         $body = json_decode((string)$response->getBody(), true);
         $this->logger->debug(
-            sprintf('Status: %s, Method: %s, Url: %s ' . $response->getStatusCode()),
+            sprintf('Status: %s, Method: %s, Url: %s ', $response->getStatusCode(), $method, $uri),
             [
                 'response' => $body,
             ]

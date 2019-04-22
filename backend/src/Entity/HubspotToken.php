@@ -59,6 +59,13 @@ class HubspotToken
     private $refreshDatetime;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=16, nullable=true)
+     */
+    private $timeOffset;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -162,6 +169,26 @@ class HubspotToken
     public function setRefreshDatetime(?\DateTime $value): self
     {
         $this->refreshDatetime = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTimeOffset(): ?string
+    {
+        return $this->timeOffset;
+    }
+
+    /**
+     * @param string|null $value
+     *
+     * @return $this
+     */
+    public function setTimeOffset(?string $value): self
+    {
+        $this->timeOffset = $value;
 
         return $this;
     }
