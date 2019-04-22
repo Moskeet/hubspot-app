@@ -29,7 +29,6 @@ class HubspotLogin extends Component {
           bodyFormData,
           { headers: {'Content-Type': 'multipart/form-data' }})
         .then(response => {
-          console.log(response);
           dispatch(tokenChangeCodeToken({
             code: response.code,
             token: response.token,

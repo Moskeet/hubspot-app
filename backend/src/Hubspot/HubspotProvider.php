@@ -123,13 +123,13 @@ class HubspotProvider
             'contacts/v1/lists/all/contacts/recent?' . http_build_query($parameters),
             [
                 'headers' => [
-                    'Authentication' => 'Bearer ' . $hubspotToken->getToken(),
+                    'Authorization' => 'Bearer ' . $hubspotToken->getToken(),
                 ]
             ]
         );
 
         if ($response->getStatusCode() !== 200) {
-            return false;
+            return null;
         }
 
         return json_decode((string)$response->getBody(), true);

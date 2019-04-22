@@ -15,6 +15,7 @@ let Hubspot = createReactClass({
       redirectUri: process.env.REACT_APP_HUBSPOT_REDIRECT_URL,
       authorizationUrl: process.env.REACT_APP_HUBSPOT_AUTH_URL,
       scope: [''],
+      optionalScope: [''],
       width: 800,
       height: 600
     };

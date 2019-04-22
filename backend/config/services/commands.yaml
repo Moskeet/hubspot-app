@@ -21,3 +21,10 @@ services:
             - '%app.tube.hubspot-fetch%'
         tags:
             - { name: 'console.command', command: 'app:beanstalk:queue-fetcher-enqueue' }
+
+    App\Command\CronHubspotGatherCommand:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@app.hubspot.hubspot_manager'
+        tags:
+            - { name: 'console.command', command: 'app:cron:hubspot-gather' }
