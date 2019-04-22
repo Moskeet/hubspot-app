@@ -1,4 +1,14 @@
-# MySQL
+# Installation:
+
+Project requires:
+* php (at least 7.1.3)
+* mysql
+* nginx or apache2 (sample config for nginx is provided)
+* composer (installed locally)
+
+## Specific pre-settings/configs:
+
+### MySQL
 
 Login as a user, who can create db + user.
 
@@ -10,7 +20,7 @@ GRANT ALL PRIVILEGES ON `wickedreport-hubspot-db`.* TO `wickedreport-hubspot-u`@
 FLUSH PRIVILEGES;
 ```
 
-# Nginx
+### Nginx
 
 Config for nginx (php7.2 used as FPM):
 ```
@@ -52,4 +62,10 @@ server {
     error_log /var/log/nginx/backend-hubspot.wr_error.log;                                                                                                                                               
     access_log /var/log/nginx/backend-hubspot.wr_access.log;                                                                                                                                             
 }
+```
+
+## Packages installation
+Run from the root of the backend part.
+```
+$ composer install
 ```
