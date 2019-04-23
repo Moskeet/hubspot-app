@@ -1,0 +1,9 @@
+services:
+    app.queue.hubspot_token_queue:
+        class: App\Queue\HubspotTokenQueue
+        arguments:
+            - '@leezy.pheanstalk.primary'
+            - '%app.tube.hubspot-fetch%'
+            - '@app.hubspot.hubspot_manager'
+            - '@app.wicked_reports.wicked_report_manager'
+            - '@doctrine.orm.default_entity_manager'
