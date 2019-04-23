@@ -5,6 +5,14 @@ Project requires:
 * mysql
 * nginx or apache2 (sample config for nginx is provided)
 * composer (installed locally)
+* beanstalkd
+* supervisor
+
+## Packages installation
+Run from the root of the backend part.
+```
+$ composer install
+```
 
 ## Specific pre-settings/configs:
 
@@ -64,8 +72,22 @@ server {
 }
 ```
 
-## Packages installation
-Run from the root of the backend part.
+### 
+
+
+### supervisor
+Notes:
+* [project root] - should be replaced with original sources root folder
+* [project user] - should be replaced to the name of the user (owner of the [project root] folder)
+
+Config:
 ```
-$ composer install
+[program:wicked-report-hubspot-listener]
+command=php ./bin/console app:beanstalk:queue-hubspot-fetcher
+numprocs=1
+autostart=true
+autorestart=true
+directory=/[project root]/backend
+user=[project user]
+
 ```
