@@ -12,6 +12,7 @@ imports:
     - { resource: services/listeners.yaml }
     - { resource: services/commands.yaml }
     - { resource: services/controllers.yaml }
+    - { resource: services/wicked-reports.yaml }
 
 services:
     # default configuration for services in *this* file

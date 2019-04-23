@@ -13,6 +13,16 @@ class WickedReportProvider
     private const API_TOKEN = 'F76AahJFyq7NC25jSjQ4mO2twEXddmhO';
 
     /**
+     * @param array $contacts
+     *
+     * @return bool
+     */
+    public function storeContacts(array $contacts): bool
+    {
+        return true;
+    }
+
+    /**
      * @param $method
      * @param string $uri
      * @param array $options

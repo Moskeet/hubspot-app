@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\HubspotToken;
 use App\Hubspot\HubspotManager;
+use App\WickedReports\WickerReportManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Leezy\PheanstalkBundle\Proxy\PheanstalkProxy;
 use Symfony\Component\Console\Command\Command;
@@ -38,15 +39,29 @@ class CronHubspotGatherCommand extends Command
     private $hubspotManager;
 
     /**
+     * @var WickerReportManager
+     */
+    private $wickerReportManager;
+
+    /**
      * @param EntityManagerInterface $em
+     * @param PheanstalkProxy $pheanstalk
+     * @param string $tubeName
      * @param HubspotManager $hubspotManager
+     * @param WickerReportManager $wickerReportManager
      */
     public function __construct(
         EntityManagerInterface $em,
-        HubspotManager $hubspotManager
+        PheanstalkProxy $pheanstalk,
+        string $tubeName,
+        HubspotManager $hubspotManager,
+        WickerReportManager $wickerReportManager
     ) {
         $this->em = $em;
+        $this->pheanstalk = $pheanstalk;
+        $this->tubeName = $tubeName;
         $this->hubspotManager = $hubspotManager;
+        $this->wickerReportManager = $wickerReportManager;
         parent::__construct();
     }
 
@@ -57,13 +72,40 @@ class CronHubspotGatherCommand extends Command
         ;
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return int|void|null
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
         $hubspotTokenRepository = $this->em->getRepository(HubspotToken::class);
 
         foreach ($hubspotTokenRepository->findAll() as $hubspotToken) {
-            $this->hubspotManager->fetchContacts($hubspotToken);
+            $wickedReportContacts = $this->hubspotManager->fetchContacts($hubspotToken);
+
+            if ($wickedReportContacts === null) {
+                continue;
+            }
+
+            if (!$this->wickerReportManager->storeContacts($wickedReportContacts)) {
+                continue;
+            }
+
+            $hubspotToken->setTimeOffset($wickedReportContacts->getTimeOffset());
+            $this->em->persist($hubspotToken);
+            $this->em->flush();
+
+            if (!$wickedReportContacts->getHasMore()) {
+                continue;
+            }
+
+            $this->pheanstalk
+                ->useTube($this->tubeName)
+                ->put($hubspotToken->getId())
+            ;
         }
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Hubspot;
 
+use App\Adapters\HubspotToWickedReportAdapter;
 use App\Entity\HubspotToken;
+use App\WickedReports\WickedReportContacts;
 
 class HubspotManager
 {
@@ -12,12 +14,28 @@ class HubspotManager
     private $hubspotProvider;
 
     /**
+     * @var HubspotToWickedReportAdapter
+     */
+    private $hubspotToWickedReportAdapter;
+
+    /**
+     * @var HubspotHelper
+     */
+    private $hubspotHelper;
+
+    /**
      * @param HubspotProvider $hubspotProvider
+     * @param HubspotToWickedReportAdapter $hubspotToWickedReportAdapter
+     * @param HubspotHelper $hubspotHelper
      */
     public function __construct(
-        HubspotProvider $hubspotProvider
+        HubspotProvider $hubspotProvider,
+        HubspotToWickedReportAdapter $hubspotToWickedReportAdapter,
+        HubspotHelper $hubspotHelper
     ) {
         $this->hubspotProvider = $hubspotProvider;
+        $this->hubspotToWickedReportAdapter = $hubspotToWickedReportAdapter;
+        $this->hubspotHelper = $hubspotHelper;
     }
 
     /**
@@ -59,16 +77,23 @@ class HubspotManager
     /**
      * @param HubspotToken $hubspotToken
      *
-     * @return bool
+     * @return WickedReportContacts
      */
-    public function fetchContacts(HubspotToken $hubspotToken): bool
+    public function fetchContacts(HubspotToken $hubspotToken): ?WickedReportContacts
     {
         try {
-            $contacts = $this->hubspotProvider->fetchContacts($hubspotToken);
+            $contactsData = $this->hubspotProvider->fetchContacts($hubspotToken);
         } catch (\Exception $e) {
-            return false;
+            return null;
         }
 
-        return true;
+        $wickedReportContacts = (new WickedReportContacts())
+            ->setHubspotToken($hubspotToken)
+            ->setContacts($this->hubspotToWickedReportAdapter->adapt($contactsData['contacts']))
+            ->setTimeOffset($contactsData['time-offset'])
+            ->setHasMore((bool)$contactsData['has-more'])
+        ;
+
+        return $wickedReportContacts;
     }
 }

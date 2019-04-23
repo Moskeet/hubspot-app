@@ -4,6 +4,8 @@ namespace App\WickedReports;
 
 class WickedReportContactData
 {
+    public const SYSTEM_HUBSPOT = 'Hubspot';
+
     /**
      * @var string "SourceSystem": varchar(255), //REQUIRED//; name of the system where contacts coming from, may be any chosen string, must be used everywhere after, helps to identify source of contacts, (e.g. ‘ActiveCampaign’, ‘Shopify’, ‘MailChimp’)
      */

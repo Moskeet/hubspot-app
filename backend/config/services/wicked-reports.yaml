@@ -1,0 +1,14 @@
+services:
+    app.wicked_reports.wicked_report_provider:
+        class: App\WickedReports\WickedReportProvider
+        calls:
+            -   method: setLogger
+                arguments:
+                    - '@logger'
+        tags:
+            - { name: monolog.logger, channel: wicked-reports-api }
+
+    app.wicked_reports.wicked_report_manager:
+        class: App\WickedReports\WickerReportManager
+        arguments:
+            - '@app.wicked_reports.wicked_report_provider'

@@ -1,5 +1,5 @@
 monolog:
-    channels: ['hubspot-api']
+    channels: ['hubspot-api', 'wicked-reports-api']
     handlers:
         main:
             type: stream
@@ -24,4 +24,11 @@ monolog:
             path:  '%kernel.logs_dir%/hubspot-api-%kernel.environment%.log'
             level: debug
             channels: ["hubspot-api"]
+            max_files: 10
+
+        wicked-reports-api:
+            type:  rotating_file
+            path:  '%kernel.logs_dir%/wicked-reports-api-%kernel.environment%.log'
+            level: debug
+            channels: ["wicked-reports-api"]
             max_files: 10

@@ -1,3 +1,5 @@
 services:
     app.adapters.hubspot_to_wicked_report_adapter:
         class: App\Adapters\HubspotToWickedReportAdapter
+        arguments:
+            - '@app.hubspot.hubspot_helper'

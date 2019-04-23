@@ -25,6 +25,9 @@ services:
     App\Command\CronHubspotGatherCommand:
         arguments:
             - '@doctrine.orm.default_entity_manager'
+            - '@leezy.pheanstalk.primary'
+            - '%app.tube.hubspot-fetch%'
             - '@app.hubspot.hubspot_manager'
+            - '@app.wicked_reports.wicked_report_manager'
         tags:
             - { name: 'console.command', command: 'app:cron:hubspot-gather' }

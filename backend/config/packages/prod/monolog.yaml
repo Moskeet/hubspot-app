@@ -31,3 +31,10 @@ monolog:
             level: debug
             channels: ["hubspot-api"]
             max_files: 10
+
+        wicked-reports-api:
+            type:  rotating_file
+            path:  '%kernel.logs_dir%/wicked-reports-api-%kernel.environment%.log'
+            level: debug
+            channels: ["wicked-reports-api"]
+            max_files: 10

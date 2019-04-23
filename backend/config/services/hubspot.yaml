@@ -21,3 +21,8 @@ services:
         public: true
         arguments:
             - '@app.hubspot.hubspot_provider'
+            - '@app.adapters.hubspot_to_wicked_report_adapter'
+            - '@app.hubspot.hubspot_helper'
+
+    app.hubspot.hubspot_helper:
+        class: App\Hubspot\HubspotHelper
