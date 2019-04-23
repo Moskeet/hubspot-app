@@ -1,4 +1,7 @@
 services:
+    app.wicked_reports.wicked_report_converter:
+        class: App\WickedReports\WickedReportConverter
+
     app.wicked_reports.wicked_report_provider:
         class: App\WickedReports\WickedReportProvider
         calls:
@@ -12,3 +15,4 @@ services:
         class: App\WickedReports\WickerReportManager
         arguments:
             - '@app.wicked_reports.wicked_report_provider'
+            - '@app.wicked_reports.wicked_report_converter'

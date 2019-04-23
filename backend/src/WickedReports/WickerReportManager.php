@@ -10,12 +10,20 @@ class WickerReportManager
     private $wickedReportProvider;
 
     /**
+     * @var WickedReportConverter
+     */
+    private $wickedReportConverter;
+
+    /**
      * @param WickedReportProvider $wickedReportProvider
+     * @param WickedReportConverter $wickedReportConverter
      */
     public function __construct(
-        WickedReportProvider $wickedReportProvider
+        WickedReportProvider $wickedReportProvider,
+        WickedReportConverter $wickedReportConverter
     ) {
         $this->wickedReportProvider = $wickedReportProvider;
+        $this->wickedReportConverter = $wickedReportConverter;
     }
 
     /**
@@ -25,6 +33,19 @@ class WickerReportManager
      */
     public function storeContacts(WickedReportContacts $wickedReportContacts): bool
     {
-        return $this->wickedReportProvider->storeContacts($wickedReportContacts->getContacts());
+        $list = [];
+
+        foreach ($wickedReportContacts->getContacts() as $contact) {
+            if ($contact === null) {
+                continue;
+            }
+
+            $list[] = $this->wickedReportConverter->contactToArray($contact);
+        }
+
+        return count($list)
+            ? $this->wickedReportProvider->storeContacts($list)
+            : true
+        ;
     }
 }
