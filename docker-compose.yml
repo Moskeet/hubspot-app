@@ -28,7 +28,7 @@ services:
             - ./backend/:/var/www/symfony/
         depends_on:
             - db
-            - beanstalkd
+            - "hubspot-beanstalkd"
         ports:
             - 9000:9000
 

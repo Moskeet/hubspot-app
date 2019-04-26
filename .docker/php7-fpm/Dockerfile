@@ -2,9 +2,7 @@ FROM php:7.2-fpm
 ARG TIMEZONE
 
 RUN apt-get update && apt-get install -y \
-    openssl \
-    git \
-    unzip
+    openssl unzip cron supervisor
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
@@ -30,3 +28,6 @@ RUN pecl install xdebug \
 && echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 WORKDIR /var/www/symfony
+
+ADD hubspot-cron /etc/cron.d/hubspot-cron
+ADD supervisor-hubspot.conf /etc/supervisor/conf.d/supervisor-hubspot.conf
