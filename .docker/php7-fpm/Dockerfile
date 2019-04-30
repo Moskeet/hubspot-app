@@ -27,7 +27,14 @@ RUN pecl install xdebug \
 && echo "xdebug.idekey=\"PHPSTORM\"" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
 && echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# cron
+ADD hubspot-cron /etc/cron.d/hubspot-cron
+RUN chmod 0644 /etc/cron.d/hubspot-cron \
+    && crontab /etc/cron.d/hubspot-cron \
+    && touch /var/log/cron.log
+CMD cron \
+    && tail -f /var/log/cron.log
+
 WORKDIR /var/www/symfony
 
-ADD hubspot-cron /etc/cron.d/hubspot-cron
 ADD supervisor-hubspot.conf /etc/supervisor/conf.d/supervisor-hubspot.conf
