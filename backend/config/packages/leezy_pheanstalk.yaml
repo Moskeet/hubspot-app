@@ -1,3 +1,7 @@
+parameters:
+    app.beanstalkd.host: '%env(BEANSTALKD_HOST)%'
+    app.beanstalkd.port: '%env(BEANSTALKD_PORT)%'
+
 leezy_pheanstalk:
     pheanstalks:
         primary:
