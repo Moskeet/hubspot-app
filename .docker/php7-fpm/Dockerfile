@@ -30,10 +30,7 @@ RUN pecl install xdebug \
 # cron
 ADD hubspot-cron /etc/cron.d/hubspot-cron
 RUN chmod 0644 /etc/cron.d/hubspot-cron \
-    && crontab /etc/cron.d/hubspot-cron \
-    && touch /var/log/cron.log
-CMD cron \
-    && tail -f /var/log/cron.log
+    && crontab /etc/cron.d/hubspot-cron
 
 WORKDIR /var/www/symfony
 
