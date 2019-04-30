@@ -31,3 +31,5 @@ All commands are written to be run from the root of the project.
   * Change settings
   * stop docker-images with: 'proxy', 'frontend'
   * use `bin/extra` again (! important to do this, as it will recompile **build** folder with new settings)
+
+### NB: keep in mind, `bin/extra` script shows ip addresses, check those addresses with your `/etc/hosts` file before continue.
