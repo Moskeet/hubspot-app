@@ -1,6 +1,10 @@
+parameters:
+    app.beanstalkd.host: '%env(BEANSTALKD_HOST)%'
+    app.beanstalkd.port: '%env(BEANSTALKD_PORT)%'
+
 leezy_pheanstalk:
     pheanstalks:
         primary:
-            server: 127.0.0.1
-            port: 11300
+            server: '%app.beanstalkd.host%'
+            port: '%app.beanstalkd.port%'
             default: true

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+echo "====== Backend extra setup ==================================="
+docker exec -it "hubspot-php-api" "bin/update"
+echo "=============================================================="
+
+echo "====== Frontend extra setup =================================="
+docker exec -it "frontend-hubspot.wr.loc" "bin/install"
+echo "=============================================================="
+
+
+echo "====== Checking docker IP adress ============================="
+IP_ADDRESS=`docker inspect "hubspot.wr.loc" | grep -Eo '"IPAddress": ".+"' | sed 's/"IPAddress": "//' | sed 's/"//'`
+echo "Please add the following lines to you /etc/hosts file:"
+echo $IP_ADDRESS "backend-hubspot.wr.loc"
+echo $IP_ADDRESS "frontend-hubspot.wr.loc"
+echo "=============================================================="
