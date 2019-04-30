@@ -20,6 +20,11 @@ class CronHubspotGatherCommand extends Command
     protected static $defaultName = 'app:cron:hubspot-gather';
 
     /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+
+    /**
      * @var HubspotTokenQueue
      */
     private $hubspotTokenQueue;
