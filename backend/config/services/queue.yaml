@@ -7,3 +7,4 @@ services:
             - '@app.hubspot.hubspot_manager'
             - '@app.wicked_reports.wicked_report_manager'
             - '@doctrine.orm.default_entity_manager'
+            - '@app.hubspot.hubspot_helper'

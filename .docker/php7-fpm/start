@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cron -f &
+/usr/bin/supervisord &
+docker-php-entrypoint php-fpm
