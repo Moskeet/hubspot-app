@@ -14,6 +14,7 @@ imports:
     - { resource: services/controllers.yaml }
     - { resource: services/wicked-reports.yaml }
     - { resource: services/queue.yaml }
+    - { resource: services/converter.yaml }
 
 services:
     # default configuration for services in *this* file
