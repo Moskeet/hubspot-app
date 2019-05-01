@@ -1,2 +1,2 @@
-*/3 * * * * /var/www/symfony/bin/console app:cron:hubspot-gather
+* 0 * * * /var/www/symfony/bin/console app:cron:hubspot-gather
 */10 * * * * /var/www/symfony/bin/console app:token:refresh > /var/www/symfony/var/log/cron-refresh-token.log
