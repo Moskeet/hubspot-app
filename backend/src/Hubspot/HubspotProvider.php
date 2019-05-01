@@ -150,9 +150,12 @@ class HubspotProvider
         try {
             $response = $client->request($method, self::API_URL . $uri, $options);
         } catch (\Exception $e) {
-            $this->logger->error('Status unknown', [
-                'message' => $e->getMessage(),
-            ]);
+            $this->logger->error(
+                sprintf('Status unknown, Method: %s, Url: %s ', $method, $uri),
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
         }
 
         $body = json_decode((string)$response->getBody(), true);

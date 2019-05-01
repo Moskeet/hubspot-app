@@ -111,12 +111,12 @@ class HubspotTokenQueue
             return;
         }
 
-        $wickedReportContacts->setContacts(
-            $this->filterContacts(
-                $wickedReportContacts->getContacts(),
-                $this->hubspotHelper->convertTimestampToDateTime($hubspotToken->getTimeOffset())
-            )
-        );
+//        $wickedReportContacts->setContacts(
+//            $this->filterContacts(
+//                $wickedReportContacts->getContacts(),
+//                $this->hubspotHelper->convertTimestampToDateTime($hubspotToken->getTimeOffset())
+//            )
+//        );
 
         if (
             count($wickedReportContacts->getContacts()) === 0 ||
@@ -151,7 +151,7 @@ class HubspotTokenQueue
             return $contacts;
         }
 
-        return array_map($contacts, function($element) use ($tokenDateTime) {
+        return array_filter($contacts, function($element) use ($tokenDateTime) {
             /** @var WickedReportContactData $element */
             return $element->getCreateDate() > $tokenDateTime;
         });
