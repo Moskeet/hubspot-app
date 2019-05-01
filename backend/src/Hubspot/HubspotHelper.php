@@ -7,10 +7,14 @@ class HubspotHelper
     /**
      * @param string|int $value
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function convertTimestampToDateTime($value): \DateTime
+    public function convertTimestampToDateTime($value): ?\DateTime
     {
+        if (empty($value)) {
+            return null;
+        }
+
         return \DateTime::createFromFormat(
             'U',
             substr($value, 0, -3),

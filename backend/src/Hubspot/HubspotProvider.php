@@ -11,6 +11,7 @@ class HubspotProvider
     use LoggerAwareTrait;
 
     private const API_URL = 'https://api.hubapi.com/';
+    private const CONTACTS_PER_CALL = 1;
 
     /**
      * @var string
@@ -109,7 +110,7 @@ class HubspotProvider
     public function fetchContacts(HubspotToken $hubspotToken): ?array
     {
         $parameters = [
-            'count' => 50,
+            'count' => self::CONTACTS_PER_CALL,
             'propertyMode' => 'value_only',
             'formSubmissionMode' => 'oldest',
         ];
