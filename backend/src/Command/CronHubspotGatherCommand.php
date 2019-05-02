@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\HubspotPayload;
 use App\Entity\HubspotToken;
 use App\Queue\HubspotTokenQueue;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,7 +62,7 @@ class CronHubspotGatherCommand extends Command
         $hubspotTokenRepository = $this->em->getRepository(HubspotToken::class);
 
         foreach ($hubspotTokenRepository->findAll() as $hubspotToken) {
-            $this->hubspotTokenQueue->serveToken($hubspotToken);
+            $this->hubspotTokenQueue->enqueue($hubspotToken);
         }
     }
 }

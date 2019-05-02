@@ -66,6 +66,13 @@ class HubspotToken
     private $timeOffset;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=16, nullable=true)
+     */
+    private $vidOffset;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -189,6 +196,26 @@ class HubspotToken
     public function setTimeOffset(?string $value): self
     {
         $this->timeOffset = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getVidOffset(): ?string
+    {
+        return $this->vidOffset;
+    }
+
+    /**
+     * @param string|null $value
+     *
+     * @return $this
+     */
+    public function setVidOffset(?string $value): self
+    {
+        $this->vidOffset = $value;
 
         return $this;
     }

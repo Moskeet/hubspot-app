@@ -1,0 +1,5 @@
+services:
+    app.converter.hubspot_payload_converter:
+        class: App\Converter\HubspotPayloadConverter
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
