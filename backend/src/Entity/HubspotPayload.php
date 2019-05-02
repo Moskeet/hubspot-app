@@ -59,11 +59,35 @@ class HubspotPayload
     }
 
     /**
+     * @param HubspotToken $value
+     *
+     * @return $this
+     */
+    public function setHubspotToken(HubspotToken $value): self
+    {
+        $this->hubspotToken = $value;
+
+        return $this;
+    }
+
+    /**
      * @return int|null
      */
     public function getOriginalVidOffset(): ?int
     {
         return $this->originalVidOffset;
+    }
+
+    /**
+     * @param int|null $value
+     *
+     * @return $this
+     */
+    public function setOriginalVidOffset(?int $value): self
+    {
+        $this->originalVidOffset = $value;
+
+        return $this;
     }
 
     /**
@@ -75,6 +99,18 @@ class HubspotPayload
     }
 
     /**
+     * @param int|null $value
+     *
+     * @return $this
+     */
+    public function setOriginalTimeOffset(?int $value): self
+    {
+        $this->originalTimeOffset = $value;
+
+        return $this;
+    }
+
+    /**
      * @return int|null
      */
     public function getNowVidOffset(): ?int
@@ -83,10 +119,34 @@ class HubspotPayload
     }
 
     /**
+     * @param int|null $value
+     *
+     * @return $this
+     */
+    public function setNowVidOffset(?int $value): self
+    {
+        $this->nowVidOffset = $value;
+
+        return $this;
+    }
+
+    /**
      * @return int|null
      */
     public function getNowTimeOffset(): ?int
     {
         return $this->nowTimeOffset;
+    }
+
+    /**
+     * @param int|null $value
+     *
+     * @return $this
+     */
+    public function setNowTimeOffset(?int $value): self
+    {
+        $this->nowTimeOffset = $value;
+
+        return $this;
     }
 }

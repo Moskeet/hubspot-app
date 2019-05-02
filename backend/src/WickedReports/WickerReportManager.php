@@ -36,16 +36,9 @@ class WickerReportManager
         $list = [];
 
         foreach ($wickedReportContacts->getContacts() as $contact) {
-            if ($contact === null) {
-                continue;
-            }
-
             $list[] = $this->wickedReportConverter->contactToArray($contact);
         }
 
-        return count($list)
-            ? $this->wickedReportProvider->storeContacts($list)
-            : true
-        ;
+        return $this->wickedReportProvider->storeContacts($list);
     }
 }

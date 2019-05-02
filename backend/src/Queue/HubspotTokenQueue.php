@@ -2,6 +2,8 @@
 
 namespace App\Queue;
 
+use App\Converter\HubspotPayloadConverter;
+use App\Entity\HubspotPayload;
 use App\Entity\HubspotToken;
 use App\Hubspot\HubspotHelper;
 use App\Hubspot\HubspotManager;
@@ -43,12 +45,18 @@ class HubspotTokenQueue
     private $hubspotHelper;
 
     /**
+     * @var HubspotPayloadConverter
+     */
+    private $hubspotPayloadConverter;
+
+    /**
      * @param PheanstalkProxy $pheanstalk
      * @param string $tubeName
      * @param HubspotManager $hubspotManager
      * @param WickerReportManager $wickerReportManager
      * @param EntityManagerInterface $em
      * @param HubspotHelper $hubspotHelper
+     * @param HubspotPayloadConverter $hubspotPayloadConverter
      */
     public function __construct(
         PheanstalkProxy $pheanstalk,
@@ -56,7 +64,8 @@ class HubspotTokenQueue
         HubspotManager $hubspotManager,
         WickerReportManager $wickerReportManager,
         EntityManagerInterface $em,
-        HubspotHelper $hubspotHelper
+        HubspotHelper $hubspotHelper,
+        HubspotPayloadConverter $hubspotPayloadConverter
     ) {
 
         $this->pheanstalk = $pheanstalk;
@@ -65,6 +74,7 @@ class HubspotTokenQueue
         $this->wickerReportManager = $wickerReportManager;
         $this->em = $em;
         $this->hubspotHelper = $hubspotHelper;
+        $this->hubspotPayloadConverter = $hubspotPayloadConverter;
     }
 
     /**
@@ -72,9 +82,14 @@ class HubspotTokenQueue
      */
     public function enqueue(HubspotToken $hubspotToken)
     {
+        $hubspotPayload = new HubspotPayload(
+            $hubspotToken
+        );
         $this->pheanstalk
             ->useTube($this->tubeName)
-            ->put($hubspotToken->getId())
+            ->put(
+                $this->hubspotPayloadConverter->toString($hubspotPayload)
+            )
         ;
     }
 
@@ -88,72 +103,60 @@ class HubspotTokenQueue
                 ->ignore('default')
                 ->reserve()
             ;
-            $hubspotToken = $this
-                ->em
-                ->getRepository(HubspotToken::class)
-                ->find(
-                    $job->getData()
-                )
-            ;
-            $this->serveToken($hubspotToken);
+            $this->serveTokenPayload(
+                $this->hubspotPayloadConverter->toPayload($job->getData())
+            );
             $this->pheanstalk->delete($job);
         }
     }
 
     /**
-     * @param HubspotToken $hubspotToken
+     * @param HubspotPayload $hubspotPayload
      */
-    public function serveToken(HubspotToken $hubspotToken): void
+    public function serveTokenPayload(HubspotPayload $hubspotPayload): void
     {
-        $wickedReportContacts = $this->hubspotManager->fetchContacts($hubspotToken);
+        $wickedReportContacts = $this->hubspotManager->fetchContacts($hubspotPayload);
 
-        if ($wickedReportContacts === null) {
+        if (
+            $wickedReportContacts === null ||
+            (
+                $wickedReportContacts !== null &&
+                count($wickedReportContacts->getContacts()) === 0
+            )
+        ) {
+            $this->em->persist($hubspotPayload->getHubspotToken());
+            $this->em->flush();
+
             return;
         }
 
-//        $wickedReportContacts->setContacts(
-//            $this->filterContacts(
-//                $wickedReportContacts->getContacts(),
-//                $this->hubspotHelper->convertTimestampToDateTime($hubspotToken->getTimeOffset())
-//            )
-//        );
-
         if (
-            count($wickedReportContacts->getContacts()) === 0 ||
             !$this->wickerReportManager->storeContacts($wickedReportContacts)
         ) {
             return;
         }
 
-        $hubspotToken->setTimeOffset($wickedReportContacts->getTimeOffset());
-        $this->em->persist($hubspotToken);
-        $this->em->flush();
-
         if (!$wickedReportContacts->getHasMore()) {
+            if (
+                $hubspotPayload->getOriginalVidOffset() !== null &&
+                $hubspotPayload->getOriginalTimeOffset() !== null
+            ) {
+                $token = $hubspotPayload
+                    ->getHubspotToken()
+                    ->setVidOffset($hubspotPayload->getOriginalVidOffset())
+                    ->setTimeOffset($hubspotPayload->getOriginalTimeOffset())
+                ;
+                $this->em->persist($token);
+                $this->em->flush();
+                $this->em->detach($token);
+            }
+
             return;
         }
 
         $this->pheanstalk
             ->useTube($this->tubeName)
-            ->put($hubspotToken->getId())
+            ->put($this->hubspotPayloadConverter->toString($hubspotPayload))
         ;
-    }
-
-    /**
-     * @param array|WickedReportContactData[] $contacts
-     * @param \DateTime|null $tokenDateTime
-     *
-     * @return array|WickedReportContactData[]
-     */
-    private function filterContacts(array $contacts, ?\DateTime $tokenDateTime): array
-    {
-        if ($tokenDateTime === null) {
-            return $contacts;
-        }
-
-        return array_filter($contacts, function($element) use ($tokenDateTime) {
-            /** @var WickedReportContactData $element */
-            return $element->getCreateDate() > $tokenDateTime;
-        });
     }
 }

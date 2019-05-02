@@ -2,14 +2,14 @@
 
 namespace App\WickedReports;
 
-use App\Entity\HubspotToken;
+use App\Entity\HubspotPayload;
 
 class WickedReportContacts
 {
     /**
-     * @var HubspotToken
+     * @var HubspotPayload
      */
-    private $hubspotToken;
+    private $hubspotPayload;
 
     /**
      * @var array
@@ -17,31 +17,26 @@ class WickedReportContacts
     private $contacts;
 
     /**
-     * @var string
-     */
-    private $timeOffset;
-
-    /**
      * @var bool
      */
     private $hasMore;
 
     /**
-     * @return HubspotToken
+     * @return HubspotPayload
      */
-    public function getHubspotToken(): HubspotToken
+    public function getHubspotPayload(): HubspotPayload
     {
-        return $this->hubspotToken;
+        return $this->hubspotPayload;
     }
 
     /**
-     * @param HubspotToken $value
+     * @param HubspotPayload $value
      *
      * @return $this
      */
-    public function setHubspotToken(HubspotToken $value): self
+    public function setHubspotPayload(HubspotPayload $value): self
     {
-        $this->hubspotToken = $value;
+        $this->hubspotPayload = $value;
 
         return $this;
     }
@@ -62,26 +57,6 @@ class WickedReportContacts
     public function setContacts(array $value): self
     {
         $this->contacts = $value;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTimeOffset(): string
-    {
-        return $this->timeOffset;
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setTimeOffset(string $value): self
-    {
-        $this->timeOffset = $value;
 
         return $this;
     }

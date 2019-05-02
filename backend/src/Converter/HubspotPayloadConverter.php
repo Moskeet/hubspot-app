@@ -60,10 +60,10 @@ class HubspotPayloadConverter
 
         return new HubspotPayload(
             $hubspotToken,
-            $originalVid,
-            $originalTime,
-            $nowVid,
-            $nowTime
+            $originalVid ? (int)$originalVid: null,
+            $originalTime ? (int)$originalTime: null,
+            $nowVid ? (int)$nowVid: null,
+            $nowTime ? (int)$nowTime: null
         );
     }
 }

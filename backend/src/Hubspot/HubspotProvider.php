@@ -103,19 +103,39 @@ class HubspotProvider
     }
 
     /**
-     * @param HubspotToken $hubspotToken
+     * @param string $token
+     * @param int|null $vidOffset
+     * @param int|null $timeOffset
      *
      * @return array|null
      */
-    public function fetchContacts(HubspotToken $hubspotToken): ?array
+    public function fetchContacts(
+        string $token,
+        int $vidOffset = null,
+        int $timeOffset = null): ?array
     {
         $parameters = [
             'count' => self::CONTACTS_PER_CALL,
             'propertyMode' => 'value_only',
         ];
 
-        if ($hubspotToken->getTimeOffset()) {
-            $parameters['timeOffset'] = $hubspotToken->getTimeOffset();
+        if (
+            ($vidOffset === null && $timeOffset !== null) ||
+            ($vidOffset !== null && $timeOffset === null)
+        ) {
+            $this->logger->debug(
+                sprintf('Possibly incorrect data.'),
+                [
+                    'token' => $token,
+                    'vidOffset' => $vidOffset,
+                    'timeOffset' => $timeOffset,
+                ]
+            );
+        }
+
+        if ($vidOffset !== null && $timeOffset !== null) {
+            $parameters['vidOffset'] = $vidOffset;
+            $parameters['timeOffset'] = $timeOffset;
         }
 
         $response = $this->request(
@@ -123,7 +143,7 @@ class HubspotProvider
             'contacts/v1/lists/all/contacts/recent?' . http_build_query($parameters),
             [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $hubspotToken->getToken(),
+                    'Authorization' => 'Bearer ' . $token,
                 ]
             ]
         );

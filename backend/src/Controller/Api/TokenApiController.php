@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\HubspotToken;
 use App\Form\Api\ExchangeCodeApiType;
 use App\Hubspot\HubspotManager;
+use App\Queue\HubspotTokenQueue;
 use Leezy\PheanstalkBundle\Proxy\PheanstalkProxy;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactory;
@@ -25,36 +26,28 @@ class TokenApiController extends AbstractController
     private $hubspotManager;
 
     /**
-     * @var PheanstalkProxy
-     */
-    private $pheanstalk;
-
-    /**
      * @var FormFactory
      */
     private $formFactory;
 
     /**
-     * @var string
+     * @var HubspotTokenQueue
      */
-    private $tubeName;
+    private $hubspotTokenQueue;
 
     /**
      * @param HubspotManager $hubspotManager
-     * @param PheanstalkProxy $pheanstalk
      * @param FormFactory $formFactory
-     * @param string $tubeName
+     * @param HubspotTokenQueue $hubspotTokenQueue
      */
     public function __construct(
         HubspotManager $hubspotManager,
-        PheanstalkProxy $pheanstalk,
         FormFactory $formFactory,
-        string $tubeName
+        HubspotTokenQueue $hubspotTokenQueue
     ) {
         $this->hubspotManager = $hubspotManager;
-        $this->pheanstalk = $pheanstalk;
         $this->formFactory = $formFactory;
-        $this->tubeName = $tubeName;
+        $this->hubspotTokenQueue = $hubspotTokenQueue;
     }
 
     /**
@@ -124,10 +117,7 @@ class TokenApiController extends AbstractController
         $em->persist($hubspotToken);
         $em->flush();
 
-        $this->pheanstalk
-            ->useTube($this->tubeName)
-            ->put($hubspotToken->getId())
-        ;
+        $this->hubspotTokenQueue->enqueue($hubspotToken);
 
         return new JsonResponse([
             'code' => $hubspotToken->getCode(),

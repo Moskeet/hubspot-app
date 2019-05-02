@@ -3,6 +3,7 @@
 namespace App\Hubspot;
 
 use App\Adapters\HubspotToWickedReportAdapter;
+use App\Entity\HubspotPayload;
 use App\Entity\HubspotToken;
 use App\WickedReports\WickedReportContacts;
 
@@ -75,25 +76,85 @@ class HubspotManager
     }
 
     /**
-     * @param HubspotToken $hubspotToken
+     * @param HubspotPayload $hubspotPayload
      *
      * @return WickedReportContacts
      */
-    public function fetchContacts(HubspotToken $hubspotToken): ?WickedReportContacts
+    public function fetchContacts(HubspotPayload $hubspotPayload): ?WickedReportContacts
     {
+        $vidOffset = $hubspotPayload->getNowVidOffset() ?? $hubspotPayload->getOriginalVidOffset();
+        $timeOffset = $hubspotPayload->getNowTimeOffset() ?? $hubspotPayload->getOriginalTimeOffset();
+        $hubspotToken = $hubspotPayload->getHubspotToken();
+
         try {
-            $contactsData = $this->hubspotProvider->fetchContacts($hubspotToken);
+            $contactsData = $this->hubspotProvider->fetchContacts(
+                $hubspotToken->getToken(),
+                $vidOffset,
+                $timeOffset
+            );
         } catch (\Exception $e) {
             return null;
         }
 
+        $contacts = $this->filterContactsList($hubspotToken, $contactsData['contacts']);
+
+        if (!count($contacts)) {
+            return (new WickedReportContacts())
+                ->setHubspotPayload($hubspotPayload)
+                ->setContacts([])
+                ->setHasMore(false)
+            ;
+        }
+
+        if (
+            $hubspotPayload->getOriginalVidOffset() === null &&
+            $hubspotPayload->getOriginalTimeOffset() === null
+        ) {
+            $firstContact = $contacts[0];
+            $hubspotPayload
+                ->setOriginalVidOffset($firstContact['vid'])
+                ->setOriginalTimeOffset($firstContact['addedAt'])
+            ;
+        }
+
+        $hubspotPayload
+            ->setNowVidOffset($contactsData['vid-offset'])
+            ->setNowTimeOffset($contactsData['time-offset'])
+        ;
         $wickedReportContacts = (new WickedReportContacts())
-            ->setHubspotToken($hubspotToken)
-            ->setContacts($this->hubspotToWickedReportAdapter->adapt($contactsData['contacts']))
-            ->setTimeOffset($contactsData['time-offset'])
+            ->setHubspotPayload($hubspotPayload)
+            ->setContacts($this->hubspotToWickedReportAdapter->adapt($contacts))
             ->setHasMore((bool)$contactsData['has-more'])
         ;
 
         return $wickedReportContacts;
+    }
+
+    /**
+     * @param HubspotToken $hubspotToken
+     * @param array $list
+     *
+     * @return array
+     */
+    private function filterContactsList(HubspotToken $hubspotToken, array $list): array
+    {
+        if ($hubspotToken->getVidOffset() === null && $hubspotToken->getTimeOffset() === null) {
+            return $list;
+        }
+
+        $filtered = [];
+
+        foreach ($list as $element) {
+            if (
+                (int)$hubspotToken->getTimeOffset() < (int)$element['addedAt'] ||
+                (int)$hubspotToken->getVidOffset() === (int)$element['vid']
+            ) {
+                break;
+            }
+
+            $filtered[] = $element;
+        }
+
+        return $filtered;
     }
 }
