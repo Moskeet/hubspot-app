@@ -7,15 +7,19 @@ RUN apt-get update && apt-get install -y curl apt-transport-https \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update && apt-get install -y gcc g++ make nodejs yarn nginx
 
-ADD nginx.conf /etc/nginx/
-ADD api.conf /etc/nginx/sites-available/
+COPY nginx /etc/nginx/
 
-RUN ln -s /etc/nginx/sites-available/api.conf /etc/nginx/sites-enabled/api \
-    && rm /etc/nginx/sites-enabled/default \
+RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf \
+	&& rm /etc/nginx/sites-enabled/default \
+	&& touch /var/log/nginx/frontend_error.log \
+	&& touch /var/log/nginx/frontend_access.log \
+	&& touch /var/log/nginx/backend_error.log \
+	&& touch /var/log/nginx/backend_access.log \
 	&& usermod -u 1000 www-data
 
 WORKDIR /var/www/frontend
 
-CMD ["nginx"]
+EXPOSE 80
+EXPOSE 8080
 
-EXPOSE 12080
+CMD ["nginx"]

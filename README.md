@@ -2,16 +2,13 @@
 
 * Run `bin/install`, it will:
   * create containers + detouch console.
-* Run `bin/extra`, it will:
   * install backend vendors
   * install frontend node_modules + apply config values
   * do frontend build
-  * (!) show information, to be added to your local /etc/hosts file, to test the system
 
 # Usage
 
-* Open `https://backend-hubspor.wr.loc/` in your browser. Approve certificate (self-signed).
-* Open `https://frontend-hubspor.wr.loc/` in your browser. Approve certificate (self-signed).
+* Open `http://localhost/` in your browser.
 * Now press button to get a token.
 
 # Settings places:
@@ -22,14 +19,17 @@ All commands are written to be run from the root of the project.
   $ cp backend/.env backend/.env.local
   ```
   * Change settings
-  * stop docker-images with: 'proxy', 'backend', 'php-api'
-  * use `bin/extra` again
+  * `docker kill hubspot-php-api`
+  * use `bin/install` again
 * frontend config adjustments, run:
   ```
   $ cp frontend/.env frontend/.env.local
   ```
   * Change settings
-  * stop docker-images with: 'proxy', 'frontend'
-  * use `bin/extra` again (! important to do this, as it will recompile **build** folder with new settings)
+  * `docker kill hubspot-nginx`
+  * use `bin/install` again
 
-### NB: keep in mind, `bin/extra` script shows ip addresses, check those addresses with your `/etc/hosts` file before continue.
+# Project docker notes
+
+Docker for project was configured with ports 80 (for localhost as a 'frontend') and 8080 (for localhost as a 'backend'). Https is not needed,
+as Hubspot works with localhost on http (if some domain should be used here, so https+ssl cert should be used).

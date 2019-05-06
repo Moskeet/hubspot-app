@@ -1,3 +1,11 @@
 #!/usr/bin/env sh
 
 docker-compose up --build -d
+
+echo "====== Backend extra setup ==================================="
+docker exec -it "hubspot-php-api" "/var/www/symfony/install-php"
+echo "=============================================================="
+
+echo "====== Frontend extra setup =================================="
+docker exec -it "hubspot-nginx" "/var/www/frontend/install-yarn"
+echo "=============================================================="

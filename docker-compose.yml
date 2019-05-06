@@ -1,8 +1,9 @@
 version: "3"
 
 services:
-    db:
+    "hubspot-db":
         image: mysql:5.7
+        container_name: "hubspot-db"
         volumes:
             - .docker/data/db:/var/lib/mysql
         environment:
@@ -26,35 +27,22 @@ services:
         container_name: "hubspot-php-api"
         volumes:
             - ./backend/:/var/www/symfony/
+            - ./bin/install-php:/var/www/symfony/install-php
         depends_on:
-            - db
+            - "hubspot-db"
             - "hubspot-beanstalkd"
         ports:
             - 9000:9000
 
-    "backend-hubspot.wr.loc":
-        build: ".docker/backend-hubspot.wr.loc"
-        container_name: "backend-hubspot.wr.loc"
-        ports:
-            - 11080:11080
-        volumes:
-            - ./backend/:/var/www/symfony/
-        depends_on:
-            - php-api
-
-    "frontend-hubspot.wr.loc":
-        build: ".docker/frontend-hubspot.wr.loc"
-        container_name: "frontend-hubspot.wr.loc"
-        ports:
-            - 12080:12080
-        volumes:
-            - ./frontend/:/var/www/frontend/
-
-    proxy:
-        build: .docker/proxy
-        container_name: "hubspot.wr.loc"
+    "hubspot-nginx":
+        build: ".docker/nginx"
+        container_name: "hubspot-nginx"
         ports:
             - 80:80
+            - 8080:8080
+        volumes:
+            - ./backend/:/var/www/symfony/
+            - ./frontend/:/var/www/frontend/
+            - ./bin/install-yarn:/var/www/frontend/install-yarn
         depends_on:
-          - "frontend-hubspot.wr.loc"
-          - "backend-hubspot.wr.loc"
+            - php-api
