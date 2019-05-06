@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
+cd /var/www/frontend
 yarn install
 yarn build

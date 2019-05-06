@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
+cd /var/www/symfony
 composer install --no-interaction
 bin/console doctrine:migration:migrate --no-interaction
+supervisorctl restart "wicked-report-hubspot-listener"

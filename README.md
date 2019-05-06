@@ -5,6 +5,7 @@
   * install backend vendors
   * install frontend node_modules + apply config values
   * do frontend build
+* Run `bin/install` again (due to DB connection), and move to **Usage** part.
 
 # Usage
 

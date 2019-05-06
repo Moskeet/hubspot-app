@@ -19,7 +19,7 @@ services:
         image: bodsch/docker-beanstalkd
         container_name: "hubspot-beanstalkd"
 
-    php-api:
+    "hubspot-php-api":
         build:
             context: .docker/php7-fpm
             args:
@@ -27,7 +27,7 @@ services:
         container_name: "hubspot-php-api"
         volumes:
             - ./backend/:/var/www/symfony/
-            - ./bin/install-php:/var/www/symfony/install-php
+            - ./bin:/var/www/bin
         depends_on:
             - "hubspot-db"
             - "hubspot-beanstalkd"
@@ -43,6 +43,6 @@ services:
         volumes:
             - ./backend/:/var/www/symfony/
             - ./frontend/:/var/www/frontend/
-            - ./bin/install-yarn:/var/www/frontend/install-yarn
+            - ./bin:/var/www/bin
         depends_on:
-            - php-api
+            - "hubspot-php-api"
