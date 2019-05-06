@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 
 RUN apt-get update && apt-get install -y curl apt-transport-https \
 	&& curl -sL https://deb.nodesource.com/setup_11.x -o nodesource_setup.sh \
